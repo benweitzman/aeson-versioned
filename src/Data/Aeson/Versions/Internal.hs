@@ -54,11 +54,11 @@ deserialize deserializer val = flip parseMaybe val $ \x -> do
 
 -- | Default serialization for anything with a `ToJSON` instance.
 instance ToJSON a => SerializedVersion a where
-  serializers = M.fromList [(MkVersion 1 0, mToJSON)]
+  serializers = M.fromList [(v1, mToJSON)]
 
 -- | Default deserialization for anything with a `FromJSON` instance
 instance FromJSON a => DeserializedVersion a where
-  deserializers = M.fromList [(MkVersion 1 0, parseJSON)]
+  deserializers = M.fromList [(v1, parseJSON)]
 
 
 data Void

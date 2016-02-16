@@ -17,6 +17,37 @@ data Version a b = MkVersion { majorVersion :: a
                              , minorVersion :: b
                              } deriving (Eq, Ord)
 
+
+type V1 = MkVersion 1 0
+type V2 = MkVersion 2 0
+type V3 = MkVersion 3 0
+type V4 = MkVersion 4 0
+type V5 = MkVersion 5 0
+
+v1, v2, v3, v4, v5 :: Version Integer Integer
+v1 = MkVersion 1 0
+v2 = MkVersion 2 0
+v3 = MkVersion 3 0
+v4 = MkVersion 4 0
+v5 = MkVersion 5 0
+
+pv1 :: Proxy V1
+pv1 = Proxy
+
+pv2 :: Proxy V2
+pv2 = Proxy
+
+pv3 :: Proxy V3
+pv3 = Proxy
+
+pv4 :: Proxy V4
+pv4 = Proxy
+
+pv5 :: Proxy V5
+pv5 = Proxy
+
+
+
 versionParser :: ReadP (Version Integer Integer)
 versionParser = do
   majorS <- munch1 (`elem` ['0'..'9'])
