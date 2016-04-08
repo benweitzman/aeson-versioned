@@ -20,7 +20,7 @@ class FailableToJSON a where
 
 -- | Anything that has a non failable `ToJSON` instance can be lifted
 -- into `FailableToJSON`
-instance ToJSON a => FailableToJSON a where
+instance {-# OVERLAPPABLE #-} ToJSON a => FailableToJSON a where
   mToJSON = Just . toJSON
 
 -- | This is sort of analogous to how `MonadPlus` is related to
