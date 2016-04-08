@@ -53,11 +53,11 @@ deserialize deserializer val = flip parseMaybe val $ \x -> do
           sequence (fmap deserializer fVal)
 
 -- | Default serialization for anything with a `ToJSON` instance.
-instance ToJSON a => SerializedVersion a where
+instance {-# OVERLAPPABLE #-} ToJSON a => SerializedVersion a where
   serializers = M.fromList [(v1, mToJSON)]
 
 -- | Default deserialization for anything with a `FromJSON` instance
-instance FromJSON a => DeserializedVersion a where
+instance {-# OVERLAPPABLE #-} FromJSON a => DeserializedVersion a where
   deserializers = M.fromList [(v1, parseJSON)]
 
 
