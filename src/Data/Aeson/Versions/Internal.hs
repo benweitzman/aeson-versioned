@@ -20,6 +20,8 @@ import Control.Applicative
 import Data.Aeson
 import Data.Aeson.Types
 
+import Data.Functor.Identity
+
 import qualified Data.HashMap.Strict as HM
 
 import Data.Map (Map)
@@ -58,6 +60,9 @@ serializeAll :: (CatMaybes f, FunctorToJSON f, SerializedVersion a) => f a -> Va
 serializeAll val = Object $ HM.fromList . M.toList
                           $ M.mapKeys (T.pack . show) . M.mapMaybe (flip serialize val)
                           $ serializers
+
+serializeAll' :: (SerializedVersion a) => a -> Value
+serializeAll' = serializeAll . Identity
 
 deserialize :: (TraversableFromJSON t) => Deserializer a -> Value -> Maybe (t a)
 deserialize deserializer val = flip parseMaybe val $ \x -> do
