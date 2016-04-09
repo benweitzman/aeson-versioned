@@ -20,12 +20,16 @@ import Control.Applicative
 import Data.Aeson
 import Data.Aeson.Types
 
+import qualified Data.HashMap.Strict as HM
+
 import Data.Map (Map)
 import qualified Data.Map as M
 
 import Data.Proxy
 
 import Data.Tagged
+
+import qualified Data.Text as T
 
 import Data.Traversable
 
@@ -46,6 +50,14 @@ class DeserializedVersion a where
 
 serialize :: (CatMaybes f, FunctorToJSON f) => Serializer a -> f a -> Maybe Value
 serialize serializer obj = fToJSON <$> catMaybes' (serializer <$> obj)
+
+-- | Serialize the object for all versions into a json object where
+-- the keys are versions and the values are version serialized
+-- values.
+serializeAll :: (CatMaybes f, FunctorToJSON f, SerializedVersion a) => f a -> Value
+serializeAll val = Object $ HM.fromList . M.toList
+                          $ M.mapKeys (T.pack . show) . M.mapMaybe (flip serialize val)
+                          $ serializers
 
 deserialize :: (TraversableFromJSON t) => Deserializer a -> Value -> Maybe (t a)
 deserialize deserializer val = flip parseMaybe val $ \x -> do
