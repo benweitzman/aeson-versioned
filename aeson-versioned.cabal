@@ -45,6 +45,7 @@ test-suite hspec
     aeson-versioned,
     hspec >= 2 && < 3,
     mtl >= 2 && < 3,
+    vector >= 0.11 && < 1,
     tagged,
     aeson,
     containers,
