@@ -28,6 +28,8 @@ module Data.Aeson.Versions ( SerializedVersion(..)
                            , pv3
                            , pv4
                            , pv5
+                           , UsingToJSON(..)
+                           , UsingFromJSON(..)
                            )
     where
 
