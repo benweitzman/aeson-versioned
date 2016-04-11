@@ -48,3 +48,10 @@ spec  = do
           Just encodedV2 = flip serialize (Identity (Foo 5 "five")) =<< (M.lookup v2 serializers)
       encodedV1 `shouldBe` object ["a" .= (5::Int)]
       encodedV2 `shouldBe` object ["a" .= (5::Int), "b" .= ("five" :: String)]
+    it "serializes all versions" $ do
+      let encoded = serializeAll (Identity (Foo 5 "five"))
+      encoded `shouldBe` object [ "1.0" .= object ["a" .= (5 :: Int)]
+                                , "2.0" .= object ["a" .= (5 :: Int)
+                                                  ,"b" .= ("five" :: String)
+                                                  ]
+                                ]
