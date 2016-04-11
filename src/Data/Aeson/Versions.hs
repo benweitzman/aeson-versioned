@@ -1,9 +1,13 @@
 module Data.Aeson.Versions ( SerializedVersion(..)
                            , DeserializedVersion(..)
+                           , runSerializer
                            , serialize
+                           , serialize'
                            , serializeAll
                            , serializeAll'
+                           , runDeserializer
                            , deserialize
+                           , deserialize'
                            , getSerializer
                            , getDeserializer
                            , Serializer
