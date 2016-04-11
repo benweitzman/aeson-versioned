@@ -124,23 +124,21 @@ deserialize deserializer val = flip parseMaybe val $ \x -> do
           fVal <- fParseJSON x
           sequence (fmap deserializer fVal)
 
-newtype UsingToJSON a = UsingToJSON a
+newtype UsingAeson a = UsingAeson a
 
-instance ToJSON a => ToJSON (Tagged v (UsingToJSON a)) where
-    toJSON (Tagged (UsingToJSON a)) = toJSON a
+instance ToJSON a => ToJSON (Tagged v (UsingAeson a)) where
+    toJSON (Tagged (UsingAeson a)) = toJSON a
 
-newtype UsingFromJSON a = UsingFromJSON a
-
-instance FromJSON a => FromJSON (Tagged v (UsingFromJSON a)) where
-    parseJSON val = (Tagged . UsingFromJSON) <$> parseJSON val
+instance FromJSON a => FromJSON (Tagged v (UsingAeson a)) where
+    parseJSON val = (Tagged . UsingAeson) <$> parseJSON val
 
 -- | Default serialization for anything with a `ToJSON` instance.
-instance {-# OVERLAPPABLE #-} ToJSON a => SerializedVersion (UsingToJSON a) where
-    type SerializerVersions (UsingToJSON a) = '[V1]
+instance {-# OVERLAPPABLE #-} ToJSON a => SerializedVersion (UsingAeson a) where
+    type SerializerVersions (UsingAeson a) = '[V1]
 
 -- | Default deserialization for anything with a `FromJSON` instance
-instance {-# OVERLAPPABLE #-} FromJSON a => DeserializedVersion (UsingFromJSON a) where
-    type DeserializerVersions (UsingFromJSON a) = '[V1]
+instance {-# OVERLAPPABLE #-} FromJSON a => DeserializedVersion (UsingAeson a) where
+    type DeserializerVersions (UsingAeson a) = '[V1]
 
 
 data Void
