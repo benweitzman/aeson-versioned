@@ -60,25 +60,15 @@ type Serializer a = a -> Maybe Value
 -- | Type alias for `FromJSON` values
 type Deserializer a = Value -> Parser a
 
-type family HasToJSONVersion a (v :: Version Nat Nat) where
-    HasToJSONVersion a v = (FailableToJSON (Tagged v a))
+type family HasVersion c a (v :: Version Nat Nat) where
+    HasVersion c a v = (c (Tagged v a))
 
-data HasToJSONVersion' :: a -> TyFun (Version Nat Nat) (Constraint) -> * where
-   HasToJSONVersion' :: HasToJSONVersion' a v
+data HasVersion' :: c -> a -> TyFun (Version Nat Nat) (Constraint) -> * where
+   HasVersion' :: HasVersion' c a v
 
-type instance Apply (HasToJSONVersion' v) c = HasToJSONVersion v c
+type instance Apply (HasVersion' c a) v = HasVersion c a v
 
-
-type family HasFromJSONVersion a (v :: Version Nat Nat) where
-    HasFromJSONVersion a v = (FromJSON (Tagged v a))
-
-data HasFromJSONVersion' :: a -> TyFun (Version Nat Nat) (Constraint) -> * where
-   HasFromJSONVersion' :: HasFromJSONVersion' a v
-
-type instance Apply (HasFromJSONVersion' v) c = HasFromJSONVersion v c
-
-
-class (AllSatisfy (HasToJSONVersion' a) (SerializerVersions a)) => SerializedVersion a where
+class (AllSatisfy (HasVersion' ToJSON a) (SerializerVersions a)) => SerializedVersion a where
   type SerializerVersions a :: [Version Nat Nat]
 
 class ToSerializerMap o (a :: [Version Nat Nat]) where
@@ -96,7 +86,7 @@ getSerializers :: forall a. (SerializedVersion a, ToSerializerMap a (SerializerV
 getSerializers  = let Tagged ss :: Tagged (SerializerVersions a) (Map (Version Integer Integer) (Serializer a)) = toSerializerMap
                   in ss
 
-class (AllSatisfy (HasFromJSONVersion' a) (DeserializerVersions a)) => DeserializedVersion a where
+class (AllSatisfy (HasVersion' FromJSON a) (DeserializerVersions a)) => DeserializedVersion a where
     type DeserializerVersions a :: [Version Nat Nat]
 
 class ToDeserializerMap o (a :: [Version Nat Nat]) where
