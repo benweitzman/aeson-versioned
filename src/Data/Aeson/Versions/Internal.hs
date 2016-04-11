@@ -50,9 +50,9 @@ import GHC.TypeLits
 
 import Prelude hiding (sequence)
 
-type family All c xs :: Constraint where
-    All cf '[] = ()
-    All cf (x ': xs) = (Apply cf x, All cf xs)
+type family AllSatisfy cf xs :: Constraint where
+    AllSatisfy cf '[] = ()
+    AllSatisfy cf (x ': xs) = (Apply cf x, AllSatisfy cf xs)
 
 -- | Type alias for `FailableToJSON` values
 type Serializer a = a -> Maybe Value
@@ -78,7 +78,7 @@ data HasFromJSONVersion' :: a -> TyFun (Version Nat Nat) (Constraint) -> * where
 type instance Apply (HasFromJSONVersion' v) c = HasFromJSONVersion v c
 
 
-class (All (HasToJSONVersion' a) (SerializerVersions a)) => SerializedVersion a where
+class (AllSatisfy (HasToJSONVersion' a) (SerializerVersions a)) => SerializedVersion a where
   type SerializerVersions a :: [Version Nat Nat]
 
 class ToSerializerMap o (a :: [Version Nat Nat]) where
@@ -96,7 +96,7 @@ getSerializers :: forall a. (SerializedVersion a, ToSerializerMap a (SerializerV
 getSerializers  = let Tagged ss :: Tagged (SerializerVersions a) (Map (Version Integer Integer) (Serializer a)) = toSerializerMap
                   in ss
 
-class (All (HasFromJSONVersion' a) (DeserializerVersions a)) => DeserializedVersion a where
+class (AllSatisfy (HasFromJSONVersion' a) (DeserializerVersions a)) => DeserializedVersion a where
     type DeserializerVersions a :: [Version Nat Nat]
 
 class ToDeserializerMap o (a :: [Version Nat Nat]) where
