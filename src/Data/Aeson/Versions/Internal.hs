@@ -68,7 +68,7 @@ data HasVersion' :: c -> a -> TyFun (Version Nat Nat) (Constraint) -> * where
 
 type instance Apply (HasVersion' c a) v = HasVersion c a v
 
-class (AllSatisfy (HasVersion' ToJSON a) (SerializerVersions a)) => SerializedVersion a where
+class (AllSatisfy (HasVersion' FailableToJSON a) (SerializerVersions a)) => SerializedVersion a where
   type SerializerVersions a :: [Version Nat Nat]
 
 class ToSerializerMap o (a :: [Version Nat Nat]) where
