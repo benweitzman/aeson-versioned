@@ -9,7 +9,9 @@ module Data.Aeson.Versions ( SerializedVersion(..)
                            , deserialize
                            , deserialize'
                            , getSerializer
+                           , getSerializers
                            , getDeserializer
+                           , getDeserializers
                            , Serializer
                            , Deserializer
                            , FailableToJSON(..)
