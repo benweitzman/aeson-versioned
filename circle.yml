@@ -1,0 +1,12 @@
+machine:
+  ghc:
+    version: 7.10.2
+
+dependencies:
+  cache_directories:
+    - .stack-work
+    - ~/.stack
+
+test:
+  override:
+    stack test
