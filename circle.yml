@@ -13,7 +13,7 @@ dependencies:
     - sudo apt-get update && sudo apt-get install stack -y
 
   override:
-    stack build --test --no-run-tests
+    - stack build --test --no-run-tests
 
 test:
   override:
