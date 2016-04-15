@@ -39,6 +39,7 @@ import qualified Data.Map as M
 import Data.Proxy
 
 import Data.Singletons
+import Data.Promotion.Prelude.Maybe (FromJust)
 
 import Data.Tagged
 
@@ -156,6 +157,20 @@ serializeAll val = Object $ HM.fromList . M.toList
 serializeAll' :: (SerializedVersion a) => a -> Value
 serializeAll' = serializeAll . Identity
 
+serializeLatest :: forall max f a.
+                   (Just max ~ MaxVersion (SerializerVersions a)
+                   ,KnownVersion max, FailableToJSON (Tagged max a)
+                   ,FunctorToJSON f, CatMaybes f) =>
+                   f a -> Maybe Value
+serializeLatest val = let (_, s) = getSerializer (Proxy :: Proxy max)
+                      in runSerializer s val
+
+serializeLatest' :: forall max a.
+                    (Just max ~ MaxVersion (SerializerVersions a)
+                    ,KnownVersion max, FailableToJSON (Tagged max a)) =>
+                    a -> Maybe Value
+serializeLatest' = serializeLatest . Identity
+
 -- | Run a deserializer
 runDeserializer :: (TraversableFromJSON t) => Deserializer a -> Value -> Maybe (t a)
 runDeserializer deserializer val = flip parseMaybe val $ \x -> do
@@ -171,6 +186,20 @@ deserialize v val = do
 
 deserialize' :: (DeserializedVersion a) => Version Integer Integer -> Value -> Either DeserializationError a
 deserialize' v val = runIdentity <$> deserialize v val
+
+deserializeLatest :: forall max t a.
+                   (Just max ~ MaxVersion (SerializerVersions a)
+                   ,KnownVersion max, FromJSON (Tagged max a)
+                   ,TraversableFromJSON t) =>
+                   Value -> Maybe (t a)
+deserializeLatest val = let (_, s) = getDeserializer (Proxy :: Proxy max)
+                      in runDeserializer s val
+
+deserializeLatest' :: forall max a.
+                      (Just max ~ MaxVersion (SerializerVersions a)
+                      ,KnownVersion max, FromJSON (Tagged max a)) =>
+                      Value -> Maybe a
+deserializeLatest' = (runIdentity <$>) . deserializeLatest
 
 
 -- | Newtype to specify that a type is going to use the default aeson instances

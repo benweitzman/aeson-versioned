@@ -5,9 +5,13 @@ module Data.Aeson.Versions ( SerializedVersion(..)
                            , serialize'
                            , serializeAll
                            , serializeAll'
+                           , serializeLatest
+                           , serializeLatest'
                            , runDeserializer
                            , deserialize
                            , deserialize'
+                           , deserializeLatest
+                           , deserializeLatest'
                            , getSerializer
                            , getSerializers
                            , getDeserializer

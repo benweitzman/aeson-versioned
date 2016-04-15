@@ -53,9 +53,14 @@ instance ToJSON (Tagged V2 Bar) where
 instance SerializedVersion Bar where
     type SerializerVersions Bar = '[V1, V2]
 
+data NoVersions = NoVersions
+
+instance SerializedVersion NoVersions where
+    type SerializerVersions NoVersions = '[]
+
 spec :: Spec
 spec  = do
-  describe "versions" $ do
+  describe "serializers" $ do
     it "serializes two versions" $ do
       let val = Identity (Foo 5 "five")
           Right encodedV1 = serialize v1 val
@@ -76,7 +81,19 @@ spec  = do
           encodedAll = serializeAll vals
       encodedV1 `shouldBe` Array (V.fromList [object ["type" .= ("bar" :: String)]])
       encodedV2 `shouldBe` Array (V.fromList [object ["type" .= ("bar" :: String)]
-                                             ,object ["type" .= ("barPlus" :: String)]])
+                                             ,object ["type" .= ("barPlus" :: String)]
+                                             ])
       encodedAll `shouldBe` object ["1.0" .= [object ["type" .= ("bar" :: String)]]
                                    ,"2.0" .= [object ["type" .= ("bar" :: String)]
-                                             ,object ["type" .= ("barPlus" :: String)]]]
+                                             ,object ["type" .= ("barPlus" :: String)]
+                                             ]
+                                   ]
+
+    it "serializes latest versions" $ do
+      let val = Foo 5 "five"
+          Just encoded = serializeLatest' val
+          -- this would fail to typecheck:
+          -- Just x = serializeLatest' NoVersions
+      encoded `shouldBe` object ["a" .= (5 :: Int)
+                                ,"b" .= ("five" :: String)
+                                ]
