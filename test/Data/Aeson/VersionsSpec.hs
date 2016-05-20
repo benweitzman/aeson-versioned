@@ -59,7 +59,7 @@ instance SerializedVersion NoVersions where
     type SerializerVersions NoVersions = '[]
 
 spec :: Spec
-spec  = do
+spec = do
   describe "serializers" $ do
     it "serializes two versions" $ do
       let val = Identity (Foo 5 "five")

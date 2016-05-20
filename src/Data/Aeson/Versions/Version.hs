@@ -55,7 +55,7 @@ pv5 :: Proxy V5
 pv5 = Proxy
 
 
-type family v1 <==? v2 where
+type family v1 <==? v2 :: Bool where
   MkVersion a b <==? MkVersion a c = b <=? c
   MkVersion a b <==? MkVersion c d = a <=? c
 

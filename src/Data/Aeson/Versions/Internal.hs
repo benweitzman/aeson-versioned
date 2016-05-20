@@ -134,7 +134,7 @@ getDeserializers = let Tagged ss :: Tagged (DeserializerVersions a) (Map (Versio
 runSerializer :: (CatMaybes f, FunctorToJSON f) => Serializer a -> f a -> Maybe Value
 runSerializer serializer obj = fToJSON <$> catMaybes' (serializer <$> obj)
 
-data SerializationError = SerializerFailed | SerializerNotFound
+data SerializationError = SerializerFailed | SerializerNotFound deriving (Eq, Show)
 
 serialize :: (CatMaybes f, FunctorToJSON f, SerializedVersion a) => Version Integer Integer -> f a -> Either SerializationError Value
 serialize v obj = do
