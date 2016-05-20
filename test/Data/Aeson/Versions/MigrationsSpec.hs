@@ -15,6 +15,8 @@ import Data.Tagged
 import Test.Hspec
 import Test.Hspec.QuickCheck
 
+import Test.ShouldNotTypecheck
+
 
 
 data Thing = Thing Int deriving (Show, Eq)
@@ -116,3 +118,7 @@ spec = do
                                   , "followers" .= (0 :: Int)
                                   , "extra" .= ("V3" :: String)
                                   ]
+
+    it "prevents you from using bad versions" $ do
+      shouldNotTypecheck $ mToJSON (Tagged m :: Tagged V3 (Migration (UsingAeson Int) Thing))
+      shouldNotTypecheck $ mToJSON (Tagged m2 :: Tagged V4 (Migration SimplePerson ComplexPerson))
