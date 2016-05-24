@@ -19,6 +19,7 @@ cabal-version:       >=1.10
 library
   exposed-modules:
       Data.Aeson.Versions
+      Data.Aeson.Versions.Migrations
 
   other-modules:
       Data.Aeson.Versions.Internal
@@ -34,7 +35,10 @@ library
         containers >= 0.5.0.0 && < 0.6,
         transformers >= 0.3 && < 0.6,
         unordered-containers >= 0.2 && < 0.3,
-        text >= 1.2 && < 1.3
+        text >= 1.2 && < 1.3,
+        singletons >= 2 && < 3,
+        errors >= 2 && < 3,
+        type-list >= 0.3 && < 1
 
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -50,8 +54,10 @@ test-suite hspec
     aeson,
     containers,
     transformers,
-    unordered-containers
+    unordered-containers,
+    should-not-typecheck
   default-language: Haskell2010
   hs-source-dirs: test
   main-is: Spec.hs
   type: exitcode-stdio-1.0
+  ghc-options: -fdefer-type-errors

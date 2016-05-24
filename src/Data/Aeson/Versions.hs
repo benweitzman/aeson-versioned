@@ -1,11 +1,21 @@
 module Data.Aeson.Versions ( SerializedVersion(..)
                            , DeserializedVersion(..)
+                           , runSerializer
                            , serialize
+                           , serialize'
                            , serializeAll
                            , serializeAll'
+                           , serializeLatest
+                           , serializeLatest'
+                           , runDeserializer
                            , deserialize
+                           , deserialize'
+                           , deserializeLatest
+                           , deserializeLatest'
                            , getSerializer
+                           , getSerializers
                            , getDeserializer
+                           , getDeserializers
                            , Serializer
                            , Deserializer
                            , FailableToJSON(..)
@@ -28,6 +38,7 @@ module Data.Aeson.Versions ( SerializedVersion(..)
                            , pv3
                            , pv4
                            , pv5
+                           , UsingAeson(..)
                            )
     where
 

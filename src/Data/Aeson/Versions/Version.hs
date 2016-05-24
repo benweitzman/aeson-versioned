@@ -2,6 +2,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Data.Aeson.Versions.Version where
 
@@ -11,6 +16,9 @@ import Text.Read hiding (String)
 import Text.ParserCombinators.ReadP
 
 import Data.Proxy
+
+import Data.Promotion.Prelude
+import Data.Singletons
 
 -- | datatype to use for versions across the board.
 data Version a b = MkVersion { majorVersion :: a
@@ -47,6 +55,22 @@ pv5 :: Proxy V5
 pv5 = Proxy
 
 
+type family v1 <==? v2 :: Bool where
+  MkVersion a b <==? MkVersion a c = b <=? c
+  MkVersion a b <==? MkVersion c d = a <=? c
+
+
+type MaxV v1 v2 = If (v1 <==? v2) v2 v1
+
+data MaxV' :: v2 -> TyFun (Version Nat Nat) (Version Nat Nat) -> * where
+  MaxV' :: MaxV' v1 v2
+
+type instance Apply (MaxV' v1) v2 = MaxV v1 v2
+
+
+type family MaxVersion vs where
+  MaxVersion '[] = Nothing
+  MaxVersion (x ': xs) = Just (Maybe_ x (MaxV' x) (MaxVersion xs))
 
 versionParser :: ReadP (Version Integer Integer)
 versionParser = do

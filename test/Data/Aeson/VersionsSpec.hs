@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Data.Aeson.VersionsSpec where
 
@@ -36,9 +37,7 @@ instance ToJSON (Tagged V2 Foo) where
                                        ]
 
 instance SerializedVersion Foo where
-    serializers = M.fromList [getSerializer pv1
-                             ,getSerializer pv2
-                             ]
+    type SerializerVersions Foo = '[V1, V2]
 
 data Bar = Bar | BarPlus
 
@@ -52,17 +51,20 @@ instance ToJSON (Tagged V2 Bar) where
 
 
 instance SerializedVersion Bar where
-    serializers = M.fromList [getSerializer pv1
-                             ,getSerializer pv2
-                             ]
+    type SerializerVersions Bar = '[V1, V2]
+
+data NoVersions = NoVersions
+
+instance SerializedVersion NoVersions where
+    type SerializerVersions NoVersions = '[]
 
 spec :: Spec
-spec  = do
-  describe "versions" $ do
+spec = do
+  describe "serializers" $ do
     it "serializes two versions" $ do
       let val = Identity (Foo 5 "five")
-          Just encodedV1 = flip serialize val =<< M.lookup v1 serializers
-          Just encodedV2 = flip serialize val =<< M.lookup v2 serializers
+          Right encodedV1 = serialize v1 val
+          Right encodedV2 = serialize v2 val
       encodedV1 `shouldBe` object ["a" .= (5::Int)]
       encodedV2 `shouldBe` object ["a" .= (5::Int), "b" .= ("five" :: String)]
     it "serializes all versions" $ do
@@ -74,12 +76,24 @@ spec  = do
                                 ]
     it "removes unsupported constructors" $ do
       let vals = [Bar, BarPlus]
-          Just encodedV1 = flip serialize vals =<< M.lookup v1 serializers
-          Just encodedV2 = flip serialize vals =<< M.lookup v2 serializers
+          Right encodedV1 = serialize v1 vals
+          Right encodedV2 = serialize v2 vals
           encodedAll = serializeAll vals
       encodedV1 `shouldBe` Array (V.fromList [object ["type" .= ("bar" :: String)]])
       encodedV2 `shouldBe` Array (V.fromList [object ["type" .= ("bar" :: String)]
-                                             ,object ["type" .= ("barPlus" :: String)]])
+                                             ,object ["type" .= ("barPlus" :: String)]
+                                             ])
       encodedAll `shouldBe` object ["1.0" .= [object ["type" .= ("bar" :: String)]]
                                    ,"2.0" .= [object ["type" .= ("bar" :: String)]
-                                             ,object ["type" .= ("barPlus" :: String)]]]
+                                             ,object ["type" .= ("barPlus" :: String)]
+                                             ]
+                                   ]
+
+    it "serializes latest versions" $ do
+      let val = Foo 5 "five"
+          Just encoded = serializeLatest' val
+          -- this would fail to typecheck:
+          -- Just x = serializeLatest' NoVersions
+      encoded `shouldBe` object ["a" .= (5 :: Int)
+                                ,"b" .= ("five" :: String)
+                                ]
