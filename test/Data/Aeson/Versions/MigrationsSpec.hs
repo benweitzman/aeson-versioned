@@ -33,9 +33,6 @@ instance SerializedVersion Thing where
 instance Migratable Int Thing where
   regression (Thing i) = i
 
-instance Migratable from a => Migratable (UsingAeson from) a where
-  regression a = UsingAeson $ regression a
-
 m :: Migration (UsingAeson Int) Thing
 m = Migration (Thing 3)
 

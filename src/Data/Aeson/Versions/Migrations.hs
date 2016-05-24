@@ -23,6 +23,7 @@ import Data.Promotion.Prelude
 
 import Data.Singletons
 import Data.Singletons.Decide
+import Data.Singletons.Prelude.Bool
 
 import Data.Tagged
 
@@ -39,6 +40,9 @@ data Migration from to = Migration { getLatest :: to }
 class Migratable from to where
   regression :: to -> from
 
+instance Migratable from a => Migratable (UsingAeson from) a where
+  regression a = UsingAeson $ regression a
+
 instance Show to => Show (Migration from to) where
   show (Migration latest) = show latest
 
@@ -48,11 +52,21 @@ instance (Migratable from to
          ,If (v <==? maxFrom) (FailableToJSON (Tagged v from)) (FailableToJSON (Tagged v to))
          ,SingI (v <==? maxFrom))
          => FailableToJSON  (Tagged v (Migration from to)) where
-  mToJSON (Tagged (Migration latest)) = case singByProxy (Proxy :: Proxy True) %~ singByProxy (Proxy :: Proxy (v <==? maxFrom)) of
-    Disproved _ -> case singByProxy (Proxy :: Proxy False) %~ singByProxy (Proxy :: Proxy (v <==? maxFrom)) of
+  mToJSON (Tagged (Migration latest)) = case STrue %~ test of
+    Proved Refl -> mToJSON old
+    Disproved _ -> case SFalse %~ test of
+      Proved Refl -> mToJSON new
       Disproved _ -> Nothing
-      Proved Refl -> mToJSON (Tagged latest :: Tagged v to)
-    Proved Refl -> mToJSON (Tagged (regression latest) :: Tagged v from)
+
+    where test :: Sing (v <==? maxFrom)
+          test = sing
+
+          old :: Tagged v from
+          old = Tagged $ regression latest
+
+          new :: Tagged v to
+          new = Tagged latest
+
 
 
 instance (SerializedVersion from, SerializedVersion to
