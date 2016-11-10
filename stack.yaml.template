@@ -1,1 +1,4 @@
-resolver: nightly-2016-03-23
+resolver: lts-7.4
+
+extra-deps:
+- aeson-0.11.0.0
