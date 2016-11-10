@@ -39,6 +39,7 @@ module Data.Aeson.Versions ( SerializedVersion(..)
                            , pv4
                            , pv5
                            , KnownVersion(..)
+                           , versionVal
                            , UsingAeson(..)
                            )
     where
