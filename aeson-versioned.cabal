@@ -20,9 +20,9 @@ library
   exposed-modules:
       Data.Aeson.Versions
       Data.Aeson.Versions.Migrations
+      Data.Aeson.Versions.Internal
 
   other-modules:
-      Data.Aeson.Versions.Internal
       Data.Aeson.Versions.CatMaybes
       Data.Aeson.Versions.AesonExtensions
       Data.Aeson.Versions.Version
